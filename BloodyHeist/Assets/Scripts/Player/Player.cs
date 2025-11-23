@@ -10,7 +10,7 @@ using System.Linq;
 
         public static Player Get () {
             if (instance != null) return instance;
-            instance = GameObject.FindObjectOfType<Player>();
+            instance = GameObject.FindFirstObjectByType<Player>();
             return instance;
         }
         #endregion //StaticMembers
@@ -23,6 +23,11 @@ using System.Linq;
         [SerializeField]
         private PlayerEnergy playerEnergy;
         #endregion //PlayerReferences
+
+        #region PlayerCollectibles
+        private int coins = 0;
+        private int keys = 0;
+        #endregion
 
         #region MonoCallbacks
         private void Awake() {
@@ -48,6 +53,36 @@ using System.Linq;
         public void ConsumeEnergy(float amount) => playerEnergy.Consume(amount);
 
         public void RefillEnergy(float amount) => playerEnergy.Refill(amount);
+        #endregion
+
+        #region Collectibles
+        public void AddCoins(int amount) => coins += amount;
+        public bool RemoveCoins(int amount)
+        {
+            if (coins >= amount)
+            {
+                coins -= amount;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void AddKeys(int amount) => keys += amount;
+        public bool RemoveKeys(int amount)
+        {
+            if (keys >= amount)
+            {
+                keys -= amount;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         #endregion
 
     }
