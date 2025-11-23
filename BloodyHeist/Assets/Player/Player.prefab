@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3945721899444545330}
   - component: {fileID: 8626252541827097981}
+  - component: {fileID: 7167546869860622971}
   m_Layer: 3
   m_Name: SoundEffectsManager
   m_TagString: Untagged
@@ -129,6 +130,26 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &7167546869860622971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1430053110986462425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3c51fa0c39a7cb4e88d2bd45cb569b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  oneShotSource: {fileID: 8626252541827097981}
+  loopSource: {fileID: 8626252541827097981}
+  transformToBatSound: {fileID: 8300000, guid: d9b87c06e628dc44b8bf377574e73c3f, type: 3}
+  transformBackSound: {fileID: 8300000, guid: d5363455bd60b0c4e8a5a65d544b4e11, type: 3}
+  transformFailedSound: {fileID: 8300000, guid: 037214daf55f7954886b2078bb8dc489, type: 3}
+  bloodSuckSound: {fileID: 8300000, guid: b059f6d966bc5404983ceaaa4e3e6b6c, type: 3}
+  interactSound: {fileID: 8300000, guid: 2704e635ca2ded34c9fa1c836bc98c5b, type: 3}
+  flySound: {fileID: 8300000, guid: a328057f6cca1f74cbb6b2189f9c232e, type: 3}
 --- !u!1 &5331419011861961941
 GameObject:
   m_ObjectHideFlags: 0
@@ -436,7 +457,7 @@ MonoBehaviour:
   visual: {fileID: 5356521585003572652}
   energy: {fileID: 2501299588174682223}
   input: {fileID: 2563337850831405418}
-  sfxManager: {fileID: 0}
+  sfxManager: {fileID: 7167546869860622971}
 --- !u!114 &2563337850831405418
 MonoBehaviour:
   m_ObjectHideFlags: 0

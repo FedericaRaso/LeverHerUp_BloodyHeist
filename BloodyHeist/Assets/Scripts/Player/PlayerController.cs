@@ -93,12 +93,12 @@ using UnityEngine.InputSystem;
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            Debug.Log("Collided");
             BaseInteract interactable = other.GetComponent<BaseInteract>();
             if (interactable != null)
             {
                 currentInteractable = interactable;
                 Debug.Log("Collided with: " + interactable.name);
+                sfxManager.Interact();
             }
         }
 
@@ -147,28 +147,33 @@ using UnityEngine.InputSystem;
                 isPlayerBat = true;
                 energy.Consume(transformEnergy);
                 visual?.SetAnimatorParameter("Transform");
+                sfxManager?.TransformToBat();
                 yield return new WaitForSeconds(0.5f);
                 visual?.SetAnimatorParameter("IsBat", true);
 
                 capsule.size = new Vector2(capsule.size.x, 0.4f);
 
-                if (rb != null)
-                    rb.gravityScale = 0f;
+                if (rb != null) rb.gravityScale = 0f;
+
+                sfxManager?.StartFlyLoop();
             }
             else if (isPlayerBat)
             {
                 isPlayerBat = false;
                 visual?.SetAnimatorParameter("Transform");
+                sfxManager?.TransformBack();
                 yield return new WaitForSeconds(0.5f);
                 visual?.SetAnimatorParameter("IsBat", false);
 
                 capsule.size = new Vector2(capsule.size.x, 0.6f);
 
-                if (rb != null)
-                    rb.gravityScale = 1f;
+                if (rb != null) rb.gravityScale = 1f;
+
+                sfxManager?.StopFlyLoop();
             }
             else
             {
+                sfxManager?.TransformFailed();
                 Debug.Log("Not enough energy to transform");
             }
 

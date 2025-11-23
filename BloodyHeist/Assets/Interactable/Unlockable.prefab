@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   amount: 2
   type: coin
+  sceneToLoad: EndScreen
 --- !u!61 &9089161704835061244
 BoxCollider2D:
   m_ObjectHideFlags: 0
