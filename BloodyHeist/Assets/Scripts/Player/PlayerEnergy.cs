@@ -17,7 +17,7 @@ using System;
 
         public void Init()
         {
-            currentEnergy = maxEnergy;
+            currentEnergy = 0;
             OnEnergyUpdated?.Invoke(currentEnergy);
         }
 

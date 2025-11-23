@@ -26,6 +26,8 @@ using UnityEngine.InputSystem;
         private bool isPlayerBat;
         private bool isTransforming = false;
 
+        private BaseInteract currentInteractable;
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
@@ -89,6 +91,26 @@ using UnityEngine.InputSystem;
         }
         #endregion
 
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            Debug.Log("Collided");
+            BaseInteract interactable = other.GetComponent<BaseInteract>();
+            if (interactable != null)
+            {
+                currentInteractable = interactable;
+                Debug.Log("Collided with: " + interactable.name);
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D other)
+        {
+            BaseInteract interactable = other.GetComponent<BaseInteract>();
+            if (interactable != null && interactable == currentInteractable)
+            {
+                currentInteractable = null;
+            }
+        }
+
         #region Movement
         private void HandleMovement()
         {
@@ -109,6 +131,10 @@ using UnityEngine.InputSystem;
 
         private void Interact(){
             visual?.SetAnimatorParameter("Interact");
+            if (currentInteractable != null)
+            {
+                currentInteractable.Interact(gameObject);
+            }
         }
 
         private IEnumerator TransformCoroutine()
