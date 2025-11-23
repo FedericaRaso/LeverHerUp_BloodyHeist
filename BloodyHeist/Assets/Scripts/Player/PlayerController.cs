@@ -11,9 +11,11 @@ using UnityEngine.InputSystem;
         private float transformEnergy = 10;
 
         public Rigidbody2D rb;
+        public CapsuleCollider2D capsule;
         public PlayerVisual visual;
         public PlayerEnergy energy;
         public PlayerInput input;
+        public SFXManager sfxManager;
 
         private InputAction moveAction;
         private InputAction transformAction;
@@ -22,16 +24,17 @@ using UnityEngine.InputSystem;
 
         private bool isPlayerFlipped;
         private bool isPlayerBat;
+        private bool isTransforming = false;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
             rb.freezeRotation = true;
+            capsule.size = new Vector2(capsule.size.x, 0.6f);
 
             moveAction = input.actions["Move"];
             transformAction = input.actions["Transform"];
             interactAction = input.actions["Interact"];
-
 
             if (energy != null)
                 energy.Init();
@@ -44,11 +47,9 @@ using UnityEngine.InputSystem;
             moveAction.Enable();
 
             transformAction.performed += OnTransform;
-            transformAction.canceled += OnTransform;
             transformAction.Enable();
 
             interactAction.performed += OnInteract;
-            interactAction.canceled += OnInteract;
             interactAction.Enable();
         }
 
@@ -59,11 +60,9 @@ using UnityEngine.InputSystem;
             moveAction.Disable();
 
             transformAction.performed -= OnTransform;
-            transformAction.canceled -= OnTransform;
             transformAction.Disable();
 
             interactAction.performed -= OnInteract;
-            interactAction.canceled -= OnInteract;
             interactAction.Disable();
         }
 
@@ -80,7 +79,8 @@ using UnityEngine.InputSystem;
 
         public void OnTransform(InputAction.CallbackContext ctx)
         {
-            StartTransform();
+            if (ctx.performed)
+                StartCoroutine(TransformCoroutine());
         }
 
         public void OnInteract(InputAction.CallbackContext ctx)
@@ -93,35 +93,60 @@ using UnityEngine.InputSystem;
         private void HandleMovement()
         {
             if (rb == null) return;
-            rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
+           
+            Vector2 velocity = rb.linearVelocity;
+            velocity.x = moveInput.x * moveSpeed;
+            if (isPlayerBat)
+            {
+                velocity.y = moveInput.y * moveSpeed;
+            }
+            rb.linearVelocity = velocity;
 
             float speed = rb.linearVelocity.x;
             visual?.FlipX(speed < 0);
             visual?.SetAnimatorParameter("IsMoving", speed != 0);
         }
 
-        private void StartTransform()
+        private void Interact(){
+            visual?.SetAnimatorParameter("Interact");
+        }
+
+        private IEnumerator TransformCoroutine()
         {
-            if(!isPlayerBat && energy.HasEnoughEnergy(transformEnergy)){
+            if (isTransforming) yield break;
+            isTransforming = true;
+
+            if (!isPlayerBat && energy.HasEnoughEnergy(transformEnergy))
+            {
                 isPlayerBat = true;
                 energy.Consume(transformEnergy);
                 visual?.SetAnimatorParameter("Transform");
+                yield return new WaitForSeconds(0.5f);
                 visual?.SetAnimatorParameter("IsBat", true);
-                Debug.Log("Transformation into BAT!");
+
+                capsule.size = new Vector2(capsule.size.x, 0.4f);
+
+                if (rb != null)
+                    rb.gravityScale = 0f;
             }
-            else if(isPlayerBat) {
+            else if (isPlayerBat)
+            {
                 isPlayerBat = false;
                 visual?.SetAnimatorParameter("Transform");
+                yield return new WaitForSeconds(0.5f);
                 visual?.SetAnimatorParameter("IsBat", false);
-                Debug.Log("Transformed back!");
+
+                capsule.size = new Vector2(capsule.size.x, 0.6f);
+
+                if (rb != null)
+                    rb.gravityScale = 1f;
             }
-            else{
+            else
+            {
                 Debug.Log("Not enough energy to transform");
             }
-        }
 
-        private void Interact(){
-
+            isTransforming = false;
         }
 
         #endregion
