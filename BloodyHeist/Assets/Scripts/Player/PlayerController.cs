@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 
         [SerializeField]
         private float moveSpeed = 5f;
+        [SerializeField]
+        private float transformEnergy = 10;
 
         public Rigidbody2D rb;
         public PlayerVisual visual;
@@ -15,8 +17,11 @@ using UnityEngine.InputSystem;
 
         private InputAction moveAction;
         private InputAction transformAction;
+        private InputAction interactAction;
         private Vector2 moveInput;
-        private float transformInput;
+
+        private bool isPlayerFlipped;
+        private bool isPlayerBat;
 
         private void Awake()
         {
@@ -25,6 +30,8 @@ using UnityEngine.InputSystem;
 
             moveAction = input.actions["Move"];
             transformAction = input.actions["Transform"];
+            interactAction = input.actions["Interact"];
+
 
             if (energy != null)
                 energy.Init();
@@ -39,6 +46,10 @@ using UnityEngine.InputSystem;
             transformAction.performed += OnTransform;
             transformAction.canceled += OnTransform;
             transformAction.Enable();
+
+            interactAction.performed += OnInteract;
+            interactAction.canceled += OnInteract;
+            interactAction.Enable();
         }
 
         private void OnDisable()
@@ -50,12 +61,15 @@ using UnityEngine.InputSystem;
             transformAction.performed -= OnTransform;
             transformAction.canceled -= OnTransform;
             transformAction.Disable();
+
+            interactAction.performed -= OnInteract;
+            interactAction.canceled -= OnInteract;
+            interactAction.Disable();
         }
 
         private void FixedUpdate()
         {
             HandleMovement();
-            HandleTransform();
         }
 
         #region Input Handlers
@@ -66,8 +80,12 @@ using UnityEngine.InputSystem;
 
         public void OnTransform(InputAction.CallbackContext ctx)
         {
-            transformInput = ctx.ReadValue<float>();
-            Debug.Log("Transform input: " + transformInput);
+            StartTransform();
+        }
+
+        public void OnInteract(InputAction.CallbackContext ctx)
+        {
+            Interact();
         }
         #endregion
 
@@ -77,12 +95,34 @@ using UnityEngine.InputSystem;
             if (rb == null) return;
             rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
 
-            //visual?.SetFloat("Speed", Mathf.Abs(moveInput.x));
+            float speed = rb.linearVelocity.x;
+            visual?.FlipX(speed < 0);
+            visual?.SetAnimatorParameter("IsMoving", speed != 0);
         }
 
-        private void HandleTransform()
+        private void StartTransform()
         {
-            // TODO - Transformation
+            if(!isPlayerBat && energy.HasEnoughEnergy(transformEnergy)){
+                isPlayerBat = true;
+                energy.Consume(transformEnergy);
+                visual?.SetAnimatorParameter("Transform");
+                visual?.SetAnimatorParameter("IsBat", true);
+                Debug.Log("Transformation into BAT!");
+            }
+            else if(isPlayerBat) {
+                isPlayerBat = false;
+                visual?.SetAnimatorParameter("Transform");
+                visual?.SetAnimatorParameter("IsBat", false);
+                Debug.Log("Transformed back!");
+            }
+            else{
+                Debug.Log("Not enough energy to transform");
+            }
         }
+
+        private void Interact(){
+
+        }
+
         #endregion
     }
